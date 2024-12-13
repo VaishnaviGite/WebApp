@@ -1,0 +1,171 @@
+﻿@{
+    ViewData["Title"] = "PriceChange";
+}
+
+<h1 class="text-center my-4">Price Change for Items</h1>
+
+<div class="container">
+    <div class="modal-body scroll-y p-4 bg-light rounded shadow-sm" id="modal_material">
+        <form id="kt_modal_add_user_form" class="form" action="#">
+            <div class="d-flex justify-content-start align-items-center gap-4 flex-wrap mb-4">
+                <div class="form-group mb-0">
+                    <label for="ddlitems" class="form-label h5">Select Item:</label>
+                    <select id="ddlitems" class="form-select" aria-label="Select Items">
+                        <option value="">Select an item</option>
+                    </select>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label h5">Increase / Decrease:</label>
+                    <div class="d-inline-block ms-2">
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="checkIncrease" name="increaseDecrease" class="form-check-input" />
+                            <label for="checkIncrease" value="Increase" class="form-check-label">Increase</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="checkDecrease" name="increaseDecrease" class="form-check-input" />
+                            <label for="checkDecrease" value="Decrease" class="form-check-label">Decrease</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-0">
+                    <div class="d-inline-block ms-2">
+                        <label class="required fw-semibold fs-6 mb-2">Value:</label>
+                        <input type="text" id="txtValue" maxlength="10" />
+                    </div>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label h5">Price Type:</label>
+                    <div class="d-inline-block ms-2">
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="checkDollar" name="priceType" class="form-check-input" />
+                            <label for="checkDollar" value="$" class="form-check-label">$</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="checkPercent" name="priceType" class="form-check-input" />
+                            <label for="checkPercent" value="%" class="form-check-label">%</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label h5">Price Update:</label>
+                    <div class="d-inline-block ms-2">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" id="checkIsCost" class="form-check-input" />
+                            <label for="checkIsCost" class="form-check-label">Cost</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" id="checkIsPrice" class="form-check-input" />
+                            <label for="checkIsPrice" class="form-check-label">Price</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center mt-4">
+                <button type="submit" id="BtnSubmit" class="btn btn-primary w-50">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header border-0 pt-6">
+        </div>
+        <div class="card-body py-4">
+            <table class="table align-middle table-row-dashed fs-6 gy-5" id="table_Item">
+                <thead id="tblHead">
+                    <tr>
+                        <th>Itemcode</th>
+                        <th>Oldcost</th>
+                        <th>IncDec</th>
+                        <th>PriceType</th>
+                        <th>PriceUpdate</th>
+                        <th>Newcost</th>
+                        <th>Oldprice</th>
+                        <th>Newprice</th>
+                    </tr>
+                </thead>
+                <tbody id="tblBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+@section Scripts{
+    <script src="~/plugins/global/plugins.bundle.js"></script>
+    <link href="~/plugins/custom/datatables/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/plugins/custom/datatables/jquery.dataTables.min.js"></script>
+    <link href="~/plugins/custom/datatables/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <script src="~/plugins/custom/datatables/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GetDropdown();
+
+            $("#BtnSubmit").click(function (e) {
+                e.preventDefault();
+                OnSubmit();
+            });
+        });
+
+        function GetDropdown() {
+            $("#ddlitems").empty();
+            $.ajax({
+                url: "/Home/GetDdlData",
+                method: "GET",
+                datatype: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#ddlitems").append($('<option/>').attr("value", data[i].srno).text(data[i].itemname));
+                    }
+
+                }
+            });
+        }
+
+        function OnSubmit() {
+            var srno = parseInt($('#ddlitems').val());
+            var value = parseInt($('#txtValue').val());
+            var incDec = $('input[name="increaseDecrease"]:checked').next('label').attr('value');
+            var priceType = $('input[name="priceType"]:checked').next('label').attr('value');
+            var isCostChecked = $('#checkIsCost').is(':checked');
+            var isPriceChecked = $('#checkIsPrice').is(':checked');
+            var priceUpdate = '';
+            if (isCostChecked && isPriceChecked) {
+                priceUpdate = 'both';
+            } else if (isCostChecked) {
+                priceUpdate = 'cost';
+            } else if (isPriceChecked) {
+                priceUpdate = 'price';
+            }
+            var reqPara = { Srno: srno, Value: value, IncDec: incDec, PriceType: priceType, PriceUpdate: priceUpdate }
+            $.ajax({
+                url: "/Home/PriceChanges",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(reqPara),
+                cache: false,
+                success: function (data) {
+                    $("#table_Item").show();
+                    var dataTable = $("#table_Item").DataTable();
+                    dataTable.clear();
+                    for (var i = 0; i < data.data.length; i++) {
+                        var rowData = [
+                            data.data[i].itemcode,
+                            data.data[i].oldcost,
+                            data.data[i].incDec,
+                            data.data[i].priceType,
+                            data.data[i].priceUpdate,
+                            data.data[i].newcost,
+                            data.data[i].oldprice,
+                            data.data[i].newprice
+                        ];
+                        dataTable.row.add(rowData);
+                    }
+                    dataTable.draw();
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                }
+            });
+        }
+    </script>
+}

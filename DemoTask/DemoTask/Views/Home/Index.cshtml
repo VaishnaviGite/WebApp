@@ -1,0 +1,199 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="post fs-6 d-flex flex-column-fluid" id="kt_post">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header border-0 pt-6">
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+                        <button type="button" id="btnAddItems" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_items">
+                            <span class="svg-icon svg-icon-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1" transform="rotate(-90 11.364 20.364)" fill="currentColor" />
+                                    <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor" />
+                                </svg>
+                            </span>
+                            Add Items
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body py-4">
+                <table class="table align-middle table-row-dashed fs-6 gy-5" id="table_Items">
+                    <thead id="tblHead">
+                        <tr>
+                            <th>Itemcode</th>
+                            <th>Barcode</th>
+                            <th>Itemname</th>
+                            <th>Cost</th>
+                            <th>Price</th>
+                            @*<th>CreateDate</th>*@
+                        </tr>
+                    </thead>
+                    <tbody id="tblBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="add_items" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content">
+            <div class="modal-header" id="kt_modal_add_user_header">
+                <h2 class="fw-bold" id="changeName"> Add Items</h2>
+                <input type="hidden" id="mcHide" />
+                <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal" aria-label="Close">
+                    <span class="svg-icon svg-icon-1" id="btnClose">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor" />
+                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div class="modal-body scroll-y" id="modal_items">
+                <form id="kt_modal_add_user_form" class="form" action="#">
+                    <div class="d-flex flex-column scroll-y me-n7 pe-7" id="kt_modal_add_user_scroll" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_user_header" data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Item Code</label>
+                            <input type="number" id="txtItemCode" maxlength="5" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter Item Code" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Item Name</label>
+                            <input type="text" id="txtItemName" maxlength="20" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter Item Name" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">BarCode</label>
+                            <input type="text" id="txtBarCode" maxlength="20" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter BarCode" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Item Cost</label>
+                            <input type="number" id="txtCost" maxlength="5" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter Cost" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Item Price</label>
+                            <input type="number" id="txtPrice" maxlength="5" class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter Price" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fw-semibold fs-6 mb-2">Create Date</label>
+                            <input type="date" id="CreateDate" class="form-control" />
+                        </div>
+                    </div><br />
+                    <div class="d-flex flex-end text-end pt-10">
+                        <button type="button" id="submit" class="btn btn-success">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/plugins/global/plugins.bundle.js"></script>
+    <link href="~/plugins/custom/datatables/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/plugins/custom/datatables/jquery.dataTables.min.js"></script>
+    <link href="~/plugins/custom/datatables/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <script src="~/plugins/custom/datatables/dataTables.bootstrap5.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GetItems();
+
+            $("#submit").click(function (e) {
+                e.preventDefault();
+                SaveItems();
+            });
+
+        });
+
+        $("#btnAddItems").click(function () {
+            $("#add_items").modal('show');
+        });
+
+        $("#btnClose").click(function () {
+            $("#add_items").modal('hide');
+        });
+
+        function SaveItems() {
+            if ($("#txtItemCode").val() == "" || isNaN($("#txtItemCode").val())) {
+                JAM_Dialog_Warning('Please enter ItemCode!', $("#txtItemCode").focus());
+                return false;
+            }
+            else if ($("#txtBarCode").val() == "") {
+                JAM_Dialog_Warning('Please enter BarCode!', $("#txtBarCode").focus());
+                return false;
+            }
+            else if ($("#txtItemName").val() == "") {
+                JAM_Dialog_Warning('Please enter Item Name!', $("#txtItemName").focus());
+                return false;
+            }
+            else if ($("#txtCost").val() == "" || isNaN($("#txtCost").val())) {
+                JAM_Dialog_Warning('Please enter Cost!', $("#txtCost").focus());
+                return false;
+            }
+            else if ($("#txtPrice").val() == "" || isNaN($("#txtPrice").val())) {
+                JAM_Dialog_Warning('Please enter Price!', $("#txtPrice").focus());
+                return false;
+            }
+            else if ($("#CreateDate").val() == "") {
+                JAM_Dialog_Warning('Please Select Date!', $("#CreateDate").focus());
+                return false;
+            }
+            else {
+                var Itemcode =  parseInt($("#txtItemCode").val());
+                var Itemname = $("#txtItemName").val();
+                var Barcode = $("#txtBarCode").val();
+                var Cost =  parseInt($('#txtCost').val());
+                var Price = parseInt( $('#txtPrice').val());
+                var CreateDate = $('#CreateDate').val();
+                var ReqPara = {
+                    Itemcode, Barcode, Itemname, Cost, Price, CreateDate
+                }
+                $.ajax({
+                    url: "/Home/AddItems",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(ReqPara),
+                    success: function (response) {
+                            $("#btnClose").click();
+                            $("#btnClose").click(function () {
+                                $("#add_items").modal('hide');
+                            });
+                         alert(response.em);
+                        GetItems();
+                    }
+                });
+            }
+        }
+        function GetItems() {
+            $.ajax({
+                url: "/Home/GetAllItems",
+                method: "GET",
+                success: function (response) {
+                    //alert(JSON.stringify(response));
+                    $("#table_Items").show();
+                    var dataTable = $("#table_Items").DataTable();
+                    dataTable.clear();
+                    for (var i = 0; i < response.data.length; i++) {
+                        var rowData = [
+                            response.data[i].itemcode,
+                            response.data[i].barcode,
+                            response.data[i].itemname,
+                            response.data[i].cost,
+                            response.data[i].price,
+                        ];
+                        dataTable.row.add(rowData);
+                    }
+                    dataTable.draw();
+                    console.log("Response data: ", response.data);
+                }
+            });
+        }
+    </script>
+}
